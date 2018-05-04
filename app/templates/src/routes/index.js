@@ -8,14 +8,6 @@ import Page from "../components/Page";
 import Login from "../components/pages/Login";
 import NotFound from "../components/pages/NotFound";
 import IndexPage from "@/components/pages/IndexPage";
-import UserCheck from "@/components/pages/UserCheck";
-import UpdateProduct from "@/components/pages/UpdateProduct";
-import ProductTypeManager from "@/components/pages/ProductTypeManager";
-import ProductList from "@/components/pages/ProductList";
-import ProductTagManager from "@/components/pages/ProductTagManager";
-import OrderManager from "@/components/pages/OrderManager";
-import OrderDetail from "@/components/pages/OrderDetail";
-import OrderStatistic from "@/components/pages/OrderStatistic";
 
 
 export default class CRouter extends Component {
@@ -44,17 +36,6 @@ export default class CRouter extends Component {
                         <Route path={'index'} component={IndexPage}/>
                         <Route path={"user"}>
                             <Route path={"check"} component={UserCheck}/>
-                        </Route>
-                        <Route path={'product'}>
-                            <Route path={'tagManager'} component={ProductTagManager}/>
-                            <Route path={'typeManager'} component={ProductTypeManager}/>
-                            <Route path={'update'} component={UpdateProduct}/>
-                            <Route path={'list'} component={ProductList}/>
-                        </Route>
-                        <Route path={'order'}>
-                            <Route path={'manager'} component={OrderManager}/>
-                            <Route path={'detail'} component={OrderDetail}/>
-                            <Route path={'statistic'} component={OrderStatistic}/>
                         </Route>
                         <Route path={'util'}>
                         </Route>
