@@ -1,0 +1,13 @@
+{
+  "name": "generator-admin",
+  "version": "1.0.0",
+  "description": "server admin exapmle",
+   "files": [        "app"
+    ],
+    "keywords": ["yeoman-generator"],
+    "dependencies": {
+        "yeoman-generator": "^0.17.3",
+        "chalk": "^1.0.0",
+        "yosay": "^1.0.2"
+    }
+}
