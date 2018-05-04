@@ -2,9 +2,18 @@
   "name": "generator-admin",
   "version": "1.0.0",
   "description": "server admin exapmle",
+   "repository": {
+    "type": "git",
+    "url": "https://github.com/liuxingyinyi/react-admin-example.git"
+  },
    "files": [        "app"
     ],
     "keywords": ["yeoman-generator"],
+	  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/liuxingyinyi/react-admin-example/issues"
+  },
+  "homepage": "https://github.com/liuxingyinyi/react-admin-example",
     "dependencies": {
         "yeoman-generator": "^0.17.3",
         "chalk": "^1.0.0",
