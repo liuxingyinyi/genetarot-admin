@@ -34,11 +34,9 @@ export default class CRouter extends Component {
                     <Route path={'login'} components={Login}/>
                     <Route path={'app'} component={App}>
                         <Route path={'index'} component={IndexPage}/>
-                        <Route path={"user"}>
+                        {/*       <Route path={"user"}>
                             <Route path={"check"} component={UserCheck}/>
-                        </Route>
-                        <Route path={'util'}>
-                        </Route>
+                         </Route>*/}
                     </Route>
                 </Route>
                 <Route path={'*'} component={NotFound}/>
