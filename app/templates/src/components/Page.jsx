@@ -27,21 +27,7 @@ replaceString();
 class Page extends React.Component {
 
     componentDidMount() {
-        this._requestBasicConfig();
-        this._requestProductModuleList();
     }
-
-    _requestBasicConfig = () => {
-        get('/common/basicConfig').then(data => {
-            this.props.receiveData(data, 'basicConfig');
-        });
-    };
-
-    _requestProductModuleList = () => {
-        get('/product/listProductModule').then(data => {
-            this.props.receiveData(data, 'productModules');
-        });
-    };
 
     render() {
         return (

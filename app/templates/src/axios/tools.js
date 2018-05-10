@@ -10,9 +10,9 @@ import "nprogress/nprogress.css";
 import {hashHistory} from "react-router";
 import {ACCESS_TOKEN, getCookie, OLD_ACCESS_TOKEN, REFRESH_TOKEN, setCookie, setToken} from "@/utils/Common";
 
-const RELEASE_URL = 'http://www.ibix.gz.cn/pet-server';
-const DEBUG_URL = 'http://192.168.1.160:6080/SmallShop';
-export const baseUrl = RELEASE_URL;
+const RELEASE_URL = '';
+const DEBUG_URL = '';
+export const baseUrl = DEBUG_URL;
 axios.defaults.baseURL = baseUrl;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
@@ -30,57 +30,12 @@ function progressSet(progress) {
     NProgress.set(progress);
 }
 
-/*标志位，避免重复拉取token*/
-let isFetchingToken = false;
-
-/*获取token，没有的拉取新token*/
-const getToken = () => {
-    return new Promise((resolve, reject) => {
-        const token = getCookie(ACCESS_TOKEN);
-        if (token) {
-            resolve(token);
-        } else {
-            if (!isFetchingToken) {
-                const {auth} = store.getState().httpData;
-                const userData = auth.data || {};
-                let {phone} = userData;
-                const oldToken = getCookie(OLD_ACCESS_TOKEN);
-                const refreshToken = getCookie(REFRESH_TOKEN);
-                if (userData && oldToken && refreshToken) {
-                    isFetchingToken = true;
-                    httpRequest({
-                        url: '/user/token', method: 'get', params: {
-                            phone: phone,
-                            token: oldToken,
-                            refreshToken: refreshToken
-                        }
-                    }).then(data => {
-                        setToken(data);
-                        const {token} = data;
-                        resolve(token);
-                        return data.token;
-                    }).finally(() => {
-                        isFetchingToken = false;
-                    });
-                } else {
-                    resolve('');
-                    isFetchingToken = false;
-                }
-            } else {
-                setTimeout(() => {
-                    return getToken();
-                }, 1000);
-            }
-        }
-    });
-};
-
 /*
  http请求统一实现
  get : params 是object对象
  post : FormData对象
  */
-const httpRequest = (requestData, headers = {}) => {
+const request = (requestData, headers = {}) => {
     message.destroy();
     let isOk = false;
     let http;
@@ -141,7 +96,7 @@ const httpRequest = (requestData, headers = {}) => {
             return response.data;
         }).then(data => {
             const status = data.status;
-            if (isOk && status === 0) {
+            if (isOk && status === 'SUCCESS') {
                 if (method !== 'get') {
                     message.success(data.message);
                 }
@@ -168,25 +123,10 @@ const httpRequest = (requestData, headers = {}) => {
     });
 };
 
-/*请求带上token校验*/
-export const requestWithToken = requestData => {
-    const {auth} = store.getState().httpData;
-    const userData = auth.data;
-    if (userData) {
-        let {phone} = userData;
-        return getToken().then(token => {
-            const headers = {User_name: phone, Access_token: token};
-            return request(requestData, headers);
-        });
-    }
-};
-
 /*get请求*/
 export const get = (url, params) => {
     return request({url, params});
 };
 
-
-const request = (requestData, headers = {}) => getToken().then(token => httpRequest(requestData, headers));
 
 export default request;
