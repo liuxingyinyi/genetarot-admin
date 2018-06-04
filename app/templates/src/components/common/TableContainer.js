@@ -140,6 +140,7 @@ class TableContainer extends React.Component {
     }
 
     reset = () => {
+        this.setState({data: []});
         this._requestData(1, this.state.pageSize);
     };
 
