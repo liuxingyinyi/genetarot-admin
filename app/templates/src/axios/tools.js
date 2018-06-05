@@ -8,6 +8,7 @@ import {store} from "@/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import {hashHistory} from "react-router";
+import Qs  from 'qs';
 import {ACCESS_TOKEN, getCookie, OLD_ACCESS_TOKEN, REFRESH_TOKEN, setCookie, setToken} from "@/utils/Common";
 
 const RELEASE_URL = '';
@@ -75,6 +76,9 @@ const request = (requestData, headers = {}) => {
         params,
         data: body,
         headers,
+        paramsSerializer: function (params) {
+            return Qs.stringify(params, {arrayFormat: 'repeat'})
+        },
         // `onUploadProgress` 允许为上传处理进度事件
         onUploadProgress: function (progressEvent) {
             // 对原生进度事件的处理
