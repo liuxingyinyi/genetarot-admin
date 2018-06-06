@@ -9,7 +9,7 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import {hashHistory} from "react-router";
 import Qs from "qs";
-import {ACCESS_TOKEN, getCookie, OLD_ACCESS_TOKEN, REFRESH_TOKEN, setCookie, setToken} from "@/utils/Common";
+import {ACCESS_TOKEN, getCookie, REFRESH_TOKEN, setCookie, setToken} from "@/utils/Common";
 
 const RELEASE_URL = '';
 const DEBUG_URL = '';
@@ -132,45 +132,47 @@ const request = (requestData, headerParams = {}) => {
 let fetchingToken = false;
 
 const getToken = () => {
-    return new Promise((resolve, reject) => {
-        const token = getCookie(ACCESS_TOKEN);
-        const refreshToken = getCookie(REFRESH_TOKEN);
-        const phone = getCookie('phone');
-        if (token) {
-            resolve({token, phone});
-        } else {
-            fetchingToken = true;
-            request({
-                url: '/account/refreshToken',
-                method: 'post',
-                params: {token: getCookie(OLD_ACCESS_TOKEN), refreshToken}
-            })
-                .then(data => {
-                    setToken(data);
-                    resolve(data);
-                }).finally(() => {
-                fetchingToken = false;
-            });
-        }
+    const token = getCookie(ACCESS_TOKEN);
+    const refreshToken = getCookie(REFRESH_TOKEN);
+    const phone = getCookie('phone');
+    fetchingToken = true;
+    return request({
+        url: '/account/refreshToken',
+        method: 'post',
+        params: {token: token, refreshToken}
+    }).then(data => {
+        setToken(data);
+        return data;
+    }).finally(() => {
+        fetchingToken = false;
     });
 };
+
+const refreshToken = () => {
+    getToken();
+    setInterval(getToken, 540000);
+};
+
+refreshToken();
 
 /*get请求*/
 export const get = (url, params) => {
     return request({url, params});
 };
 
-export const requestWithAuth = requestData => getToken().then(data => {
+export const requestWithAuth = requestData => {
+    const token = getCookie(ACCESS_TOKEN);
+    const phone = getCookie('phone');
     if (fetchingToken) {
         return new Promise((resolve, reject) => {
             reject();
         });
     }
     const headers = {};
-    headers['Access-Token'] = data.token;
-    headers['Username'] = data.phone;
+    headers['Access-Token'] = token;
+    headers['Username'] = phone;
     return request(requestData, headers);
-});
+};
 
 
 export default request;
