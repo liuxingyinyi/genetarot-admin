@@ -38,7 +38,7 @@ export const setToken = data => {
         //设置比正常token过期时间短一点
         setCookie({name: ACCESS_TOKEN, value: token, sec: 540});
         //设置较长的过期时间，保存以供拉取新token
-        setCookie({name: OLD_ACCESS_TOKEN, value: token, sec: 10000000000});
+        setCookie({name: OLD_ACCESS_TOKEN, value: token});
     }
     if (refreshToken) {
         setCookie({name: REFRESH_TOKEN, value: refreshToken, sec: 600});

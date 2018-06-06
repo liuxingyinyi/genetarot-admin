@@ -7,7 +7,7 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {fetchData, receiveData} from "@/action";
 import request from "@/axios/tools";
-import {setToken} from "@/utils/Common";
+import {setCookie, setToken} from "@/utils/Common";
 
 const FormItem = Form.Item;
 
@@ -35,6 +35,7 @@ class Login extends React.Component {
                 request({url: '/user/adminLogin', body: values, method: 'post'}).then(data => {
                     localStorage.setItem('user', JSON.stringify(data));
                     setToken(data);
+                    setCookie({name: 'phone', value: values.phone});
                     receiveData(data, 'auth');
                 });
             }

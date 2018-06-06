@@ -8,7 +8,7 @@ import {store} from "@/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import {hashHistory} from "react-router";
-import Qs  from 'qs';
+import Qs from "qs";
 import {ACCESS_TOKEN, getCookie, OLD_ACCESS_TOKEN, REFRESH_TOKEN, setCookie, setToken} from "@/utils/Common";
 
 const RELEASE_URL = '';
@@ -36,12 +36,13 @@ function progressSet(progress) {
  get : params 是object对象
  post : FormData对象
  */
-const request = (requestData, headers = {}) => {
+const request = (requestData, headerParams = {}) => {
     message.destroy();
     let isOk = false;
     let http;
     const {url: url = '', method: method = 'get'} = requestData;
     let {params, body} = requestData;
+    let headers = {};
     if (method === 'put') {
         if (params) {
             headers = {'Content-Type': 'application/x-www-form-urlencoded'};
@@ -70,6 +71,7 @@ const request = (requestData, headers = {}) => {
             body = format;
         }
     }
+    headers = {...headerParams, ...headers};
     http = axios.request({
         url,
         method,
@@ -105,8 +107,6 @@ const request = (requestData, headers = {}) => {
                     message.success(data.message);
                 }
                 resolve(data.data);
-            } else if (status === 401) {
-                message.warn("身份验证失败，需要重新登录");
             } else {
                 message.warn(data.message);
                 reject(data);
@@ -118,7 +118,9 @@ const request = (requestData, headers = {}) => {
                 message.error("身份验证失败，请重新登录");
                 hashHistory.push('/');
             } else if (status === 403) {
-                message.error("没有相关权限");
+                message.error('没有相关权限，禁止操作');
+            } else {
+                console.log('request failed     ', error);
             }
             reject(error);
         }).finally(function () {
@@ -127,10 +129,48 @@ const request = (requestData, headers = {}) => {
     });
 };
 
+let fetchingToken = false;
+
+const getToken = () => {
+    return new Promise((resolve, reject) => {
+        const token = getCookie(ACCESS_TOKEN);
+        const refreshToken = getCookie(REFRESH_TOKEN);
+        const phone = getCookie('phone');
+        if (token) {
+            resolve({token, phone});
+        } else {
+            fetchingToken = true;
+            request({
+                url: '/account/refreshToken',
+                method: 'post',
+                params: {token: getCookie(OLD_ACCESS_TOKEN), refreshToken}
+            })
+                .then(data => {
+                    setToken(data);
+                    resolve(data);
+                }).finally(() => {
+                fetchingToken = false;
+            });
+        }
+    });
+};
+
 /*get请求*/
 export const get = (url, params) => {
     return request({url, params});
 };
+
+export const requestWithAuth = requestData => getToken().then(data => {
+    if (fetchingToken) {
+        return new Promise((resolve, reject) => {
+            reject();
+        });
+    }
+    const headers = {};
+    headers['Access-Token'] = data.token;
+    headers['Username'] = data.phone;
+    return request(requestData, headers);
+});
 
 
 export default request;
