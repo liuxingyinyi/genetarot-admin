@@ -24,25 +24,4 @@ export const queryString = () => {
 // 获取图片文件
 const regExp = {
     'imgType': /\.jpg$|\.png$|\.jpeg$|\.gif$/
-}
-export const splitFiles = (files) => {
-    if (!files) {
-        return {};
-    }
-    const getFiles= (notImageFile) => {
-        return files.filter((file) => {
-            let key = file.local ? 'local' : 'name';
-            return notImageFile ? !regExp.imgType.test(file[key]) : regExp.imgType.test(file[key]);
-        });
-    }
-    return {
-        // 获取图片文件数组
-        getImageFiles: () =>{
-            return getFiles();
-        },
-        // 获取非图片文件
-        getFiles: () => {
-            return getFiles(true);
-        }
-    }
-}
+};

@@ -9,7 +9,6 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import {hashHistory} from "react-router";
 import Qs from "qs";
-import {ACCESS_TOKEN, getCookie, REFRESH_TOKEN, setCookie, setToken} from "@/utils/Common";
 
 const RELEASE_URL = '';
 const DEBUG_URL = '';
@@ -132,16 +131,27 @@ const request = (requestData, headerParams = {}) => {
 let fetchingToken = false;
 
 const getToken = () => {
-    const token = getCookie(ACCESS_TOKEN);
-    const refreshToken = getCookie(REFRESH_TOKEN);
-    const phone = getCookie('phone');
+    let tokenData = localStorage.getItem('tokenData');
+    return tokenData ? JSON.parse(tokenData) : {};
+};
+
+/*请求服务器，刷新token*/
+const requestToken = () => {
+    const tokenData = getToken();
+    const token = tokenData.token;
+    const refreshToken = tokenData.refreshToken;
+    const phone = localStorage.getItem('phone');
+    if (!token || !refreshToken || !phone) {
+        return;
+    }
     fetchingToken = true;
     return request({
         url: '/account/refreshToken',
         method: 'post',
         params: {token: token, refreshToken}
     }).then(data => {
-        setToken(data);
+        const oldTokenData = {...getToken(), ...data};
+        localStorage.setItem('tokenData', oldTokenData);
         return data;
     }).finally(() => {
         fetchingToken = false;
@@ -149,8 +159,8 @@ const getToken = () => {
 };
 
 const refreshToken = () => {
-    getToken();
-    setInterval(getToken, 540000);
+    requestToken();
+    setInterval(requestToken, 540000);
 };
 
 refreshToken();
@@ -161,8 +171,9 @@ export const get = (url, params) => {
 };
 
 export const requestWithAuth = requestData => {
-    const token = getCookie(ACCESS_TOKEN);
-    const phone = getCookie('phone');
+    const tokenData = getToken();
+    const token = tokenData.token;
+    const phone = tokenData.phone;
     if (fetchingToken) {
         return new Promise((resolve, reject) => {
             reject();

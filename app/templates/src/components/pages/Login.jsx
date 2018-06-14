@@ -7,7 +7,6 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {fetchData, receiveData} from "@/action";
 import request from "@/axios/tools";
-import {setCookie, setToken} from "@/utils/Common";
 import forge from "node-forge";
 
 const FormItem = Form.Item;
@@ -36,10 +35,13 @@ class Login extends React.Component {
                 const md = forge.md.md5.create();
                 md.update(values.password);
                 values.password = md.digest().toHex();
-                request({url: '/user/adminLogin', body: values, method: 'post'}).then(data => {
+                request({url: '/account/adminLogin', body: values, method: 'post'}).then(data => {
                     localStorage.setItem('user', JSON.stringify(data));
-                    setToken(data);
-                    setCookie({name: 'phone', value: values.phone});
+                    localStorage.setItem('tokenData', JSON.stringify({
+                        token: data.token,
+                        refreshToken: data.refreshToken,
+                        phone: values.phone
+                    }));
                     receiveData(data, 'auth');
                 });
             }

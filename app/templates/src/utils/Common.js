@@ -28,20 +28,3 @@ export const getCookie = cname => {
     return null;
 };
 
-export const ACCESS_TOKEN = 'Access_token';
-export const OLD_ACCESS_TOKEN = 'ola_access_token';
-export const REFRESH_TOKEN = 'refreshToken';
-
-export const setToken = data => {
-    const {token, refreshToken} = data;
-    if (token) {
-        //设置比正常token过期时间短一点
-        setCookie({name: ACCESS_TOKEN, value: token});
-        //设置较长的过期时间，保存以供拉取新token
-        setCookie({name: OLD_ACCESS_TOKEN, value: token});
-    }
-    if (refreshToken) {
-        setCookie({name: REFRESH_TOKEN, value: refreshToken});
-    }
-};
-

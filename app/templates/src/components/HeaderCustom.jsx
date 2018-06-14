@@ -1,14 +1,13 @@
 /**
  * Created by hao.cheng on 2017/4/13.
  */
-import React, { Component } from 'react';
-import { Menu, Icon, Layout, Badge, Popover } from 'antd';
-import screenfull from 'screenfull';
-import { queryString } from '../utils';
-import avater from '../style/imgs/avatar_def.png';
-import SiderCustom from './SiderCustom';
-import { connect } from 'react-redux';
-const { Header } = Layout;
+import React, {Component} from "react";
+import {Badge, Icon, Layout, Menu, Popover} from "antd";
+import screenfull from "screenfull";
+import avater from "../style/imgs/avatar_def.png";
+import SiderCustom from "./SiderCustom";
+import {connect} from "react-redux";
+const {Header} = Layout;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
 
@@ -29,6 +28,7 @@ class HeaderCustom extends Component {
     };
     logout = () => {
         localStorage.removeItem('user');
+        localStorage.removeItem('tokenData');
         this.props.router.push('/login')
     };
     popoverHide = () => {
@@ -37,16 +37,19 @@ class HeaderCustom extends Component {
         });
     };
     handleVisibleChange = (visible) => {
-        this.setState({ visible });
+        this.setState({visible});
     };
+
     render() {
-        const { responsive, path } = this.props;
+        const {responsive, path} = this.props;
         return (
-            <Header style={{ background: '#fff', padding: 0, height: 65 }} className="custom-theme" >
+            <Header style={{background: '#fff', padding: 0, height: 65}} className="custom-theme">
                 {
                     responsive.data.isMobile ? (
-                        <Popover content={<SiderCustom path={path} popoverHide={this.popoverHide} />} trigger="click" placement="bottomLeft" visible={this.state.visible} onVisibleChange={this.handleVisibleChange}>
-                            <Icon type="bars" className="trigger custom-trigger" />
+                        <Popover content={<SiderCustom path={path} popoverHide={this.popoverHide}/>} trigger="click"
+                                 placement="bottomLeft" visible={this.state.visible}
+                                 onVisibleChange={this.handleVisibleChange}>
+                            <Icon type="bars" className="trigger custom-trigger"/>
                         </Popover>
                     ) : (
                         <Icon
@@ -58,27 +61,27 @@ class HeaderCustom extends Component {
                 }
                 <Menu
                     mode="horizontal"
-                    style={{ lineHeight: '64px', float: 'right' }}
+                    style={{lineHeight: '64px', float: 'right'}}
                     onClick={this.menuClick}
                 >
                     {/* <Menu.Item key="full" onClick={this.screenFull} >
-                        <Icon type="arrows-alt" onClick={this.screenFull} />
-                    </Menu.Item> */}
+                     <Icon type="arrows-alt" onClick={this.screenFull} />
+                     </Menu.Item> */}
                     {/* <Menu.Item key="1">
-                        <Badge count={25} overflowCount={10} style={{marginLeft: 10}}>
-                            <Icon type="notification" />
-                        </Badge>
-                    </Menu.Item> */}
-                    <SubMenu title={<span className="avatar"><img src={avater} alt="头像" /></span>}>
+                     <Badge count={25} overflowCount={10} style={{marginLeft: 10}}>
+                     <Icon type="notification" />
+                     </Badge>
+                     </Menu.Item> */}
+                    <SubMenu title={<span className="avatar"><img src={avater} alt="头像"/></span>}>
                         <MenuItemGroup title="用户中心">
                             {/* <Menu.Item key="setting:1">你好 - {this.props.user.userName}</Menu.Item>
-                            <Menu.Item key="setting:2">个人信息</Menu.Item> */}
+                             <Menu.Item key="setting:2">个人信息</Menu.Item> */}
                             <Menu.Item key="logout"><span onClick={this.logout}>退出登录</span></Menu.Item>
                         </MenuItemGroup>
                         {/* <MenuItemGroup title="设置中心">
-                            <Menu.Item key="setting:3">个人设置</Menu.Item>
-                            <Menu.Item key="setting:4">系统设置</Menu.Item>
-                        </MenuItemGroup> */}
+                         <Menu.Item key="setting:3">个人设置</Menu.Item>
+                         <Menu.Item key="setting:4">系统设置</Menu.Item>
+                         </MenuItemGroup> */}
                     </SubMenu>
                 </Menu>
                 <style>{`
@@ -93,7 +96,7 @@ class HeaderCustom extends Component {
 }
 
 const mapStateToProps = state => {
-    const { responsive = {data: {}} } = state.httpData;
+    const {responsive = {data: {}}} = state.httpData;
     return {responsive};
 };
 
