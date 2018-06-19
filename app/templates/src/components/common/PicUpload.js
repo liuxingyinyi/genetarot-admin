@@ -3,39 +3,38 @@
  */
 import React from "react";
 import {Button, Form, Icon, message, Modal, Upload} from "antd";
-
+import {baseUrl, get} from "@/axios/tools";
 const FormItem = Form.Item;
-const LIMIT_SIZE = 700 * 1024;
 
-class PicUpload extends React.Component {
+export default class PicUpload extends React.Component {
 
     static defaultProps = {
-        limitSize: LIMIT_SIZE,
-        limit: 10,
-        defaultFileList: [],
-        callRef: () => {
-        },
+        uploadText: '',
+        limit: 1,
+        limitSize: 2 * 1024 * 1024,
+        defaultList: [],//url list,
+        afterUploadClear: true,
     };
-// 构造
+
+    // 构造
     constructor(props) {
         super(props);
         // 初始状态
         this.state = {
             previewVisible: false,
             previewImage: '',
-            fileList: props.defaultFileList,
-            disabled: false
+            fileList: props.defaultList.map((v, index) => ({uid: -index, status: 'done', url: v})),
+            uploading: false,
         };
     }
 
     componentDidMount() {
-        this.props.callRef(this);
     }
 
-    setFileList = list => {
-        this.setState({fileList: list, disabled: false});
+    setFileList = urls => {
+        const list = urls.map((v, index) => ({uid: -index, status: 'done', url: v}));
+        this.setState({fileList: list});
     };
-
 
     handleCancel = () => this.setState({previewVisible: false});
 
@@ -48,63 +47,74 @@ class PicUpload extends React.Component {
 
     handleChange = ({fileList}) => {
         const {limit} = this.props;
-        if (fileList.length > limit) {
-            message.error(`当前只能上传${limit}张图片`);
+        if (limit && fileList.length > limit) {
+            message.warn(`只能上传${limit}张图片`);
             return;
         }
-        fileList = fileList.filter(v => {
-            const {limitSize} = this.props;
-            const suit = v.status !== 'uploading' || v.originFileObj.size <= limitSize;
-            if (!suit) {
-                message.error(`图片大小不能超过${limitSize}`);
-            }
-            return suit;
-        });
-        const disabled = fileList.length >= limit;
-        this.setState({fileList, disabled});
+        this.setState({fileList});
     };
 
-    handleSubmit = (e) => {
-        e.preventDefault();
-        this.props.form.validateFields((err, values) => {
-            if (!err) {
-                const postData = {file: this.state.fileList.map(v => v.originFileObj)};
-                this.props.upload(postData)
-                    .then(data => {
-                        this.setState({fileList: []});
-                    });
-            }
+    _beforeUpload = (file) => {
+        const isJPG = file.type === 'image/jpeg';
+        if (!isJPG) {
+            message.error('You can only upload JPG file!');
+        }
+        let limitSize = this.props.limitSize;
+        const isLt2M = file.size < limitSize;
+        if (!isLt2M) {
+            message.error(`图片不能超过${limitSize}k`);
+        }
+        return isJPG && isLt2M;
+    };
+
+    handleUpload = () => {
+        const {fileList} = this.state;
+        const {afterUploadClear} = this.props;
+
+        this.setState({
+            uploading: true,
         });
+        const {upload} = this.props;
+        upload(fileList.map(v => v.originFileObj))
+            .then(() => {
+                if (afterUploadClear) {
+                    this.setState({fileList: [], loading: false});
+                } else {
+                    this.setState({loading: false});
+                }
+            });
     };
 
     render() {
-        const {previewVisible, previewImage, fileList} = this.state;
+        const {previewVisible, previewImage, fileList, uploading} = this.state;
+        const {uploadText, limit} = this.props;
         const uploadButton = (
-            <div >
+            <div>
                 <Icon type="plus"/>
-                <div className="ant-upload-text">Upload</div>
+                <div className="ant-upload-text">{uploadText}</div>
             </div>
         );
         return (
-            <div className="clearfix">
+            <div>
                 <Upload
-                    action='doesnotupload'
+                    action="do not upload"
                     listType="picture-card"
                     fileList={fileList}
                     onPreview={this.handlePreview}
-                    disabled={this.state.disabled}
+                    beforeUpload={this._beforeUpload}
                     onChange={this.handleChange}
                 >
-                    {uploadButton}
+                    { uploadButton}
                 </Upload>
-                <Form onSubmit={this.handleSubmit}>
-                    <FormItem>
-                        <Button htmlType="submit" className="login-form-button"
-                        >
-                            上传图片
-                        </Button>
-                    </FormItem>
-                </Form>
+                <Button
+                    className="upload-demo-start"
+                    type="primary"
+                    onClick={this.handleUpload}
+                    disabled={this.state.fileList.length === 0}
+                    loading={uploading}
+                >
+                    {uploading ? '上传中...' : '开始上传' }
+                </Button>
                 <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
                     <img alt="example" style={{width: '100%'}} src={previewImage}/>
                 </Modal>
@@ -113,5 +123,3 @@ class PicUpload extends React.Component {
     }
 }
 
-
-export default Form.create()(PicUpload);
