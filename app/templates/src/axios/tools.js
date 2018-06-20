@@ -140,7 +140,7 @@ const requestToken = () => {
     const tokenData = getToken();
     const token = tokenData.token;
     const refreshToken = tokenData.refreshToken;
-    const phone = localStorage.getItem('phone');
+    const phone = tokenData.phone;
     if (!token || !refreshToken || !phone) {
         return;
     }
@@ -148,10 +148,10 @@ const requestToken = () => {
     return request({
         url: '/account/refreshToken',
         method: 'post',
-        params: {token: token, refreshToken}
+        params: {token: token, refreshToken, phone}
     }).then(data => {
         const oldTokenData = {...getToken(), ...data};
-        localStorage.setItem('tokenData', oldTokenData);
+        localStorage.setItem('tokenData', JSON.stringify(oldTokenData));
         return data;
     }).finally(() => {
         fetchingToken = false;
