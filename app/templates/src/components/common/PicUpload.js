@@ -11,7 +11,7 @@ export default class PicUpload extends React.Component {
     static defaultProps = {
         uploadText: '',
         limit: 1,
-        limitSize: 2 * 1024 * 1024,
+        limitSize: 2 * 1024,
         defaultList: [],//url list,
         afterUploadClear: true,
     };
@@ -45,27 +45,20 @@ export default class PicUpload extends React.Component {
         });
     };
 
-    handleChange = ({fileList}) => {
-        const {limit} = this.props;
+    handleChange = ({file, fileList}) => {
+        const {limit, limitSize} = this.props;
         if (limit && fileList.length > limit) {
             message.warn(`只能上传${limit}张图片`);
+            return;
+        }
+        const isLt2M = file.size < limitSize * 1024;
+        if (!isLt2M) {
+            message.error(`图片不能超过${limitSize}k`);
             return;
         }
         this.setState({fileList});
     };
 
-    _beforeUpload = (file) => {
-        const isJPG = file.type === 'image/jpeg';
-        if (!isJPG) {
-            message.error('You can only upload JPG file!');
-        }
-        let limitSize = this.props.limitSize;
-        const isLt2M = file.size < limitSize;
-        if (!isLt2M) {
-            message.error(`图片不能超过${limitSize}k`);
-        }
-        return isJPG && isLt2M;
-    };
 
     handleUpload = () => {
         const {fileList} = this.state;
@@ -100,8 +93,8 @@ export default class PicUpload extends React.Component {
                     action="do not upload"
                     listType="picture-card"
                     fileList={fileList}
+                    disabled={fileList.length >= limit}
                     onPreview={this.handlePreview}
-                    beforeUpload={this._beforeUpload}
                     onChange={this.handleChange}
                 >
                     { uploadButton}
