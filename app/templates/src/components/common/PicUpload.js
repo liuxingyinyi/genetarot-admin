@@ -46,15 +46,17 @@ export default class PicUpload extends React.Component {
     };
 
     handleChange = ({file, fileList}) => {
-        const {limit, limitSize} = this.props;
-        if (limit && fileList.length > limit) {
-            message.warn(`只能上传${limit}张图片`);
-            return;
-        }
-        const isLt2M = file.size < limitSize * 1024;
-        if (!isLt2M) {
-            message.error(`图片不能超过${limitSize}k`);
-            return;
+        if (file.status !== 'removed') {
+            const {limit, limitSize} = this.props;
+            if (limit && fileList.length > limit) {
+                message.warn(`只能上传${limit}张图片`);
+                return;
+            }
+            const isLt2M = file.size < limitSize * 1024;
+            if (!isLt2M) {
+                message.error(`图片不能超过${limitSize}k`);
+                return;
+            }
         }
         this.setState({fileList});
     };
