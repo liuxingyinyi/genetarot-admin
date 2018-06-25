@@ -8,12 +8,16 @@ import PhotoSwipe from "photoswipe";
 import PhotoswipeUIDefault from "photoswipe/dist/photoswipe-ui-default";
 import "photoswipe/dist/photoswipe.css";
 import "photoswipe/dist/default-skin/default-skin.css";
+import {connect} from "react-redux";
 
 const {Meta} = Card;
 const confirm = Modal.confirm;
 
-export default class PicShow extends React.Component {
-    // 构造
+class PicShow extends React.Component {
+    static defaultProps = {
+        editAble: true,
+    };
+// 构造
     constructor(props) {
         super(props);
         // 初始状态
@@ -60,18 +64,22 @@ export default class PicShow extends React.Component {
     };
 
     _getItem = data => {
+        const {picPrefix} = this.props;
         return <Col span={6}>
             <Card
                 hoverable
                 actions={[<Icon type="eye-o" onClick={e => {
                     this.openGallery(data.url);
                 }}/>, <Icon type="edit" onClick={e => {
+                    if (!this.state.editData) {
+                        return;
+                    }
                     this.setState({editData: data, showPicEditor: true});
                 }}/>, <Popconfirm title="删除图片" onConfirm={() => {
                     this.props.deletePic(data);
                 }}>
                     <Icon type="delete"/></Popconfirm>]}
-                cover={<img alt="example" src={data.url}/>}
+                cover={<img alt="example" src={picPrefix + data.url}/>}
             >
                 <Meta
                     title={data.name}
@@ -156,3 +164,13 @@ export default class PicShow extends React.Component {
     }
 }
 
+
+const mapStateToPorps = state => {
+    const config = (state.httpData.config || {}).data;
+    const picPrefix = config && (config.basePicPrefix || '');
+    const {auth} = state.httpData;
+    return {auth, picPrefix};
+};
+
+
+export default connect(mapStateToPorps)(PicShow);

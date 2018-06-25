@@ -23,7 +23,7 @@ export default class PicUpload extends React.Component {
         this.state = {
             previewVisible: false,
             previewImage: '',
-            fileList: props.defaultList.map((v, index) => ({uid: -index, status: 'done', url: v})),
+            fileList: [],
             uploading: false,
         };
     }
@@ -32,9 +32,10 @@ export default class PicUpload extends React.Component {
     }
 
     setFileList = urls => {
-        const list = urls.map((v, index) => ({uid: -index, status: 'done', url: v}));
-        this.setState({fileList: list});
+        this.setState({fileList: this._wrapUrls(urls)});
     };
+
+    _wrapUrls = urls => urls.map((v, index) => ({uid: -index, status: 'done', url: v}));
 
     handleCancel = () => this.setState({previewVisible: false});
 
@@ -81,7 +82,7 @@ export default class PicUpload extends React.Component {
     };
 
     render() {
-        const {previewVisible, previewImage, fileList, uploading} = this.state;
+        let {previewVisible, previewImage, fileList, uploading} = this.state;
         const {uploadText, limit} = this.props;
         const uploadButton = (
             <div>
@@ -89,6 +90,9 @@ export default class PicUpload extends React.Component {
                 <div className="ant-upload-text">{uploadText}</div>
             </div>
         );
+        if (!Array.isArray(fileList) || fileList.length < 1) {
+            fileList = this._wrapUrls(this.props.defaultList);
+        }
         return (
             <div>
                 <Upload
