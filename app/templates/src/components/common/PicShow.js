@@ -65,11 +65,12 @@ class PicShow extends React.Component {
 
     _getItem = data => {
         const {picPrefix} = this.props;
+        const url = picPrefix + data.url;
         return <Col span={6}>
             <Card
                 hoverable
                 actions={[<Icon type="eye-o" onClick={e => {
-                    this.openGallery(data.url);
+                    this.openGallery(url);
                 }}/>, <Icon type="edit" onClick={e => {
                     if (!this.state.editData) {
                         return;
@@ -79,7 +80,7 @@ class PicShow extends React.Component {
                     this.props.deletePic(data);
                 }}>
                     <Icon type="delete"/></Popconfirm>]}
-                cover={<img alt="example" src={picPrefix + data.url}/>}
+                cover={<img alt="example" src={url}/>}
             >
                 <Meta
                     title={data.name}
