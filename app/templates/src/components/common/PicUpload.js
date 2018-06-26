@@ -14,6 +14,8 @@ export default class PicUpload extends React.Component {
         limitSize: 2 * 1024,
         defaultList: [],//url list,
         afterUploadClear: true,
+        onRemove: file => {
+        }
     };
 
     // 构造
@@ -74,23 +76,28 @@ export default class PicUpload extends React.Component {
         upload(fileList.map(v => v.originFileObj))
             .then(() => {
                 if (afterUploadClear) {
-                    this.setState({fileList: [], loading: false});
+                    this.setState({fileList: [], uploading: false});
                 } else {
-                    this.setState({loading: false});
+                    this.setState({uploading: false});
                 }
             });
     };
 
+    _onRemove = file => {
+        const {onRemove} = this.props;
+        onRemove(file);
+    };
+
     render() {
         let {previewVisible, previewImage, fileList, uploading} = this.state;
-        const {uploadText, limit} = this.props;
+        const {uploadText, limit, defaultList} = this.props;
         const uploadButton = (
             <div>
                 <Icon type="plus"/>
                 <div className="ant-upload-text">{uploadText}</div>
             </div>
         );
-        if (!Array.isArray(fileList) || fileList.length < 1) {
+        if (defaultList.length > 0) {
             fileList = this._wrapUrls(this.props.defaultList);
         }
         return (
@@ -101,6 +108,7 @@ export default class PicUpload extends React.Component {
                     fileList={fileList}
                     disabled={fileList.length >= limit}
                     onPreview={this.handlePreview}
+                    onRemove={this._onRemove}
                     onChange={this.handleChange}
                 >
                     { uploadButton}
