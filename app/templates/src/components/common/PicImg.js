@@ -16,10 +16,13 @@ class PicImg extends React.Component {
 
 
     render() {
-        let src = this.props.src;
+        let {src, width, height} = this.props;
         const config = (this.props.config || {}).data;
         const basePicPrefix = config ? (config.basePicPrefix || '') : '';
         src = basePicPrefix + src;
+        if (width && height) {
+            src += '_' + width + '_' + height;
+        }
         return (
             <img {...this.props} src={src}/>
         );
